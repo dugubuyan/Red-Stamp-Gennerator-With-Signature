@@ -14,75 +14,32 @@ class SealGenerator:
     def __init__(self, private_key=None):
         self.private_key = private_key or ec.generate_private_key(ec.SECP256R1())
         self.public_key = self.private_key.public_key()
-        self.size = 400
-        self.center = self.size // 2
-        self.outer_radius = self.size // 2 - 20
-        self.star_radius = 30
-
-    def create_seal(self, company_name, bottom_text):
-        """创建印章核心方法"""
-        img = Image.new('RGBA', (self.size, self.size), (0, 0, 0, 0))
-        draw = ImageDraw.Draw(img)
         
-        # 绘制外圆
-        self._draw_circle(draw)
-        # 绘制五角星
-        self._draw_star(draw)
-        # 绘制环形文字
-        self._draw_circular_text(draw, company_name)
-        # 绘制底部文字
-        self._draw_bottom_text(draw, bottom_text)
-        return img
-
-    def _draw_circle(self, draw):
-        """绘制外圆"""
-        draw.ellipse([(20, 20), (self.size-20, self.size-20)], 
-                   outline=(220,20,20,180), width=6)
-
-    def _draw_star(self, draw):
-        """绘制五角星"""
-        points = []
-        for i in range(10):
-            angle = math.pi * i / 5 - math.pi / 2
-            r = self.star_radius if i % 2 == 0 else self.star_radius * 0.4
-            x = self.center + r * math.cos(angle)
-            y = self.center + r * math.sin(angle)
-            points.append((x, y))
-        draw.polygon(points, fill=(220,20,20,180))
-
-    def _draw_circular_text(self, draw, text):
-        """绘制环形文字"""
-        font_size = 28
-        try:
-            font = ImageFont.truetype("/System/Library/Fonts/PingFang.ttc", font_size)
-        except:
-            font = ImageFont.load_default()
-
-        char_count = len(text)
-        total_angle = math.pi * 1.2  # 216度
-        start_angle = -math.pi * 0.6 - math.pi / 2
+    def create_seal(self, company_name, bottom_text, size=400):
+        """创建印章核心方法（使用sealGenerate.py方式）"""
+        # 根据尺寸计算参数
+        R = int(size * 0.6)  # 外圆半径
+        H = int(size * 0.3)  # 圆心到中层文字距离
+        r = int(size * 0.2)  # 五角星半径
         
-        for i, char in enumerate(text):
-            angle = start_angle + (total_angle * i / (char_count - 1) if char_count > 1 else 0)
-            x = self.center + (self.outer_radius - 30) * math.cos(angle)
-            y = self.center + (self.outer_radius - 30) * math.sin(angle)
-            bbox = draw.textbbox((0, 0), char, font=font)
-            char_width = bbox[2] - bbox[0]
-            draw.text((x - char_width/2, y - 10), char, fill=(220,20,20,180), font=font)
-
-    def _draw_bottom_text(self, draw, text):
-        """绘制底部文字"""
-        font_size = 20
-        try:
-            font = ImageFont.truetype("/System/Library/Fonts/PingFang.ttc", font_size)
-        except:
-            font = ImageFont.load_default()
-        
-        bbox = draw.textbbox((0, 0), text, font=font)
-        text_width = bbox[2] - bbox[0]
-        x = self.center - text_width/2
-        y = self.center + self.star_radius + 40
-        draw.text((x, y), text, fill=(220,20,20,180), font=font)
+        stamp = Stamp(
+            R=R,
+            H=H,
+            r=r,
+            edge=int(size*0.05),
+            border=int(size*0.03),
+            fill=(220, 20, 20, 180),
+            words_up=company_name,
+            words_mid="",
+            words_down=bottom_text,
+            angle_up=270,
+            angle_down=60,
+            font_size_up=int(size*0.12),
+            font_size_down=int(size*0.06),
+            save_path="temp.png"
+        )
+        stamp.draw_stamp()
+        return stamp.img
 
     def add_watermark(self, image, data):
         """添加数字水印"""
@@ -155,7 +112,7 @@ def generate_seal_interface(company_name, bottom_text, size, key_file):
         generator = SealGenerator()
     
     # 生成印章
-    img = generator.create_seal(company_name, bottom_text)
+    img = generator.create_seal(company_name, bottom_text, int(size))
     
     # 添加水印
     watermark_data = {
