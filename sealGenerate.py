@@ -61,12 +61,8 @@ class Stamp:
                  font_xratio_down=1,  # 下部文字横向变形比例
                  stroke_width_down=1,  # 下部文字粗细，一般取值0,1,2
 
-                 img_wl_path="background.jpg",  # 纹理图路径
                  save_path="stamp.png"  # 保存图片路径
                  ):
-
-        # 打开纹理图像，随机截取旋转
-        self.img_wl = Image.open(img_wl_path)
 
         # 图像初始设置为None
         self.img = None
@@ -207,20 +203,6 @@ class Stamp:
                                    font_flip=True)
             angle_word_curr = angle_word_curr + angle_word
 
-        # 随机圈一部分纹理图
-        # pos_random = (randint(0, 200), randint(0, 100))
-        # box = (pos_random[0], pos_random[1], pos_random[0] + 300, pos_random[1] + 300)
-        # img_wl_random = self.img_wl.crop(box).rotate(randint(0, 360))
-        # # 重新设置im2的大小，并进行一次高斯模糊
-        # img_wl_random = img_wl_random.resize(img.size).convert('L').filter(ImageFilter.GaussianBlur(1))
-        # # 将纹理图的灰度映射到原图的透明度，由于纹理图片自带灰度，映射后会有透明效果，所以fill的透明度不能太低
-        # L, H = img.size
-        # for h in range(H):
-        #     for l in range(L):
-        #         dot = (l, h)
-        #         img.putpixel(dot,
-        #                      img.getpixel(dot)[:3] + (int(img_wl_random.getpixel(dot) / 255 * img.getpixel(dot)[3]),))
-        # # 进行一次高斯模糊，提高真实度
         self.img = img.filter(ImageFilter.GaussianBlur(0.6))
 
     def show_stamp(self):
