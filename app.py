@@ -102,7 +102,7 @@ class SealGenerator:
         image.putdata(pixels)
         return image
 
-def generate_seal_interface(company_name, bottom_text, size, enable_watermark, watermark_content, watermark_file, key_file):
+def generate_seal_interface(company_name, bottom_text, size, enable_watermark, watermark_file, key_file):
     """生成印章界面函数"""
     # 初始化生成器
     if key_file:
@@ -219,7 +219,8 @@ with gr.Blocks(title="红章生成与验证系统") as demo:
                     size_input = gr.Dropdown(choices=["200", "300", "400"], value="300", label="印章尺寸")
                     
                     enable_watermark = gr.Checkbox(label="启用签名数字水印", value=False)
-                    with gr.Accordion("数字水印设置", open=False) as watermark_acc:
+                    watermark_acc = gr.Group(visible=False)
+                    with watermark_acc:
                         watermark_file = gr.File(label="上传欲签名文件", file_types=[".txt", ".pdf", ".docx"])
                         key_file = gr.File(label="私钥文件", file_types=[".pem"])
                         gr.Markdown("### 密钥管理")
@@ -233,7 +234,7 @@ with gr.Blocks(title="红章生成与验证系统") as demo:
 
             generate_btn.click(
                 fn=generate_seal_interface,
-                inputs=[company_input, bottom_text_input, size_input, key_file],
+                inputs=[company_input, bottom_text_input, size_input, enable_watermark, watermark_file, key_file],
                 outputs=[output_image, gr.JSON(label="水印数据", visible=enable_watermark)]
             )
             
