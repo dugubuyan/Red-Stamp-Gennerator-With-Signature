@@ -125,6 +125,9 @@ def generate_seal_interface(company_name, bottom_text, size, enable_watermark, w
                 with open(watermark_file.name, "rb") as f:
                     content = f.read()
             except Exception as e:
+                # 先保存临时文件再返回
+                temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+                img.save(temp_file.name)
                 return temp_file.name, {"error": f"文件读取失败: {str(e)}"}
         
         if content:
