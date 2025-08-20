@@ -117,16 +117,15 @@ def generate_seal_interface(company_name, bottom_text, size, enable_watermark, w
     
     watermark_data = None
     if enable_watermark:
-        # 处理水印内容
-        content = ""
-        content_type = "text"
+        # 处理签名文件
+        content = b""
+        content_type = "file"
         if watermark_file:
-            with open(watermark_file.name, "rb") as f:
-                content = f.read().decode(errors='replace')
-            content_type = "file"
-        elif watermark_content:
-            content = watermark_content
-            content_type = "text"
+            try:
+                with open(watermark_file.name, "rb") as f:
+                    content = f.read()
+            except Exception as e:
+                return temp_file.name, {"error": f"文件读取失败: {str(e)}"}
         
         if content:
             # 计算内容哈希
@@ -136,8 +135,8 @@ def generate_seal_interface(company_name, bottom_text, size, enable_watermark, w
             watermark_data = {
                 "issuer": company_name,
                 "timestamp": "2025-08-20",
-                "content_hash": content_hash,
-                "content_type": content_type
+                "file_hash": content_hash,
+                "file_size": len(content)
             }
             img = generator.add_watermark(img, watermark_data)
         else:
@@ -216,10 +215,9 @@ with gr.Blocks(title="红章生成与验证系统") as demo:
                     bottom_text_input = gr.Textbox(label="底部文字", placeholder="输入底部文字") 
                     size_input = gr.Dropdown(choices=["200", "300", "400"], value="300", label="印章尺寸")
                     
-                    enable_watermark = gr.Checkbox(label="启用数字水印", value=True)
+                    enable_watermark = gr.Checkbox(label="启用签名数字水印", value=False)
                     with gr.Accordion("数字水印设置", open=False) as watermark_acc:
-                        watermark_content = gr.Textbox(label="水印文本内容", placeholder="输入水印文本或上传文件")
-                        watermark_file = gr.File(label="或上传水印文件", file_types=[".txt", ".pdf", ".docx"])
+                        watermark_file = gr.File(label="上传欲签名文件", file_types=[".txt", ".pdf", ".docx"])
                         key_file = gr.File(label="私钥文件", file_types=[".pem"])
                         gr.Markdown("### 密钥管理")
                         generate_key_btn = gr.Button("生成新密钥对")
@@ -233,7 +231,7 @@ with gr.Blocks(title="红章生成与验证系统") as demo:
             generate_btn.click(
                 fn=generate_seal_interface,
                 inputs=[company_input, bottom_text_input, size_input, key_file],
-                outputs=[output_image, watermark_output]
+                outputs=[output_image, gr.JSON(label="水印数据", visible=enable_watermark)]
             )
             
             def generate_keys():
