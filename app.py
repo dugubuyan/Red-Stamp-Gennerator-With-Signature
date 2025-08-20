@@ -19,24 +19,24 @@ class SealGenerator:
     def create_seal(self, company_name, bottom_text, size=400):
         """创建印章核心方法（使用sealGenerate.py方式）"""
         # 根据尺寸计算参数
-        R = int(size * 0.6)  # 外圆半径
-        H = int(size * 0.3)  # 圆心到中层文字距离
-        r = int(size * 0.2)  # 五角星半径
+        R = int(size * 0.65)  # 外圆半径
+        H = int(size * 0.25)  # 圆心到中层文字距离
+        r = int(size * 0.25)  # 五角星半径
         
         stamp = Stamp(
             R=R,
             H=H,
             r=r,
-            edge=int(size*0.05),
-            border=int(size*0.03),
+            edge=int(size*0.04),
+            border=int(size*0.04),
             fill=(220, 20, 20, 180),
             words_up=company_name,
             words_mid="",
             words_down=bottom_text,
             angle_up=270,
             angle_down=60,
-            font_size_up=int(size*0.12),
-            font_size_down=int(size*0.06),
+            font_size_up=int(size*0.2),
+            font_size_down=int(size*0.1),
             save_path="temp.png"
         )
         stamp.draw_stamp()
