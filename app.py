@@ -1,6 +1,6 @@
 import gradio as gr
-from red_seal_generator import generate_red_seal
-from verify_seal import verify_seal
+import red_seal_generator
+import verify_seal
 import tempfile
 
 def generate_seal_interface(company_name, size, seal_color, text_color):
@@ -14,7 +14,7 @@ def generate_seal_interface(company_name, size, seal_color, text_color):
 
 def verify_seal_interface(image, original_text):
     """验证红章的界面函数"""
-    result, confidence = verify_seal(image.name, original_text)
+    result, confidence = verify_seal.verify_seal_file(image.name, original_text)
     return f"验证结果：{'通过' if result else '未通过'}\n置信度：{confidence:.2%}"
 
 with gr.Blocks(title="红章生成与验证系统") as demo:

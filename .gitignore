@@ -1,0 +1,5 @@
+.aider*
+*.png
+__pycache__
+*.pem
+.idea
