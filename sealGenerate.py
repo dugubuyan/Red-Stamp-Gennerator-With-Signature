@@ -180,11 +180,12 @@ class Stamp:
                                    word, self.fill, self.font_size_up, self.font_xratio_up, self.stroke_width_up)
             angle_word_curr = angle_word_curr - angle_word
 
-        # 绘制中层文字
-        angle_word = self.angle_mid / len(self.words_mid)
-        angle_word_curr = -((len(self.words_mid) - 1) / 2) * angle_word
+        # 绘制中层文字（当有内容时）
+        if self.words_mid:
+            angle_word = self.angle_mid / len(self.words_mid)
+            angle_word_curr = -((len(self.words_mid) - 1) / 2) * angle_word
 
-        for word in self.words_mid:
+            for word in self.words_mid:
             self.draw_rotated_text(img, 0,
                                    (self.R + self.edge + self.H * tan(angle_word_curr * pi / 180), self.R + self.edge),
                                    self.H,
