@@ -102,7 +102,7 @@ class SealGenerator:
         image.putdata(pixels)
         return image
 
-def generate_seal_interface(company_name, bottom_text, size, key_file):
+def generate_seal_interface(company_name, bottom_text, size, enable_watermark, watermark_content, watermark_file, key_file):
     """生成印章界面函数"""
     # 初始化生成器
     if key_file:
@@ -115,18 +115,38 @@ def generate_seal_interface(company_name, bottom_text, size, key_file):
     # 生成印章
     img = generator.create_seal(company_name, bottom_text, int(size))
     
-    # 添加水印
-    watermark_data = {
-        "company": company_name,
-        "timestamp": "2025-08-20",
-        "issuer": "红章管理系统"
-    }
-    img = generator.add_watermark(img, watermark_data)
+    watermark_data = None
+    if enable_watermark:
+        # 处理水印内容
+        content = ""
+        content_type = "text"
+        if watermark_file:
+            with open(watermark_file.name, "rb") as f:
+                content = f.read().decode(errors='replace')
+            content_type = "file"
+        elif watermark_content:
+            content = watermark_content
+            content_type = "text"
+        
+        if content:
+            # 计算内容哈希
+            content_hash = hashlib.sha256(content.encode() if isinstance(content, str) else content).hexdigest()
+            
+            # 构建水印数据
+            watermark_data = {
+                "issuer": company_name,
+                "timestamp": "2025-08-20",
+                "content_hash": content_hash,
+                "content_type": content_type
+            }
+            img = generator.add_watermark(img, watermark_data)
+        else:
+            watermark_data = {"error": "未提供水印内容"}
     
     # 保存临时文件
     temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
     img.save(temp_file.name)
-    return temp_file.name
+    return temp_file.name, watermark_data if watermark_data else {}
 
 def verify_seal_interface(image, original_text):
     """验证红章完整性"""
@@ -195,18 +215,25 @@ with gr.Blocks(title="红章生成与验证系统") as demo:
                     company_input = gr.Textbox(label="单位名称", placeholder="输入单位名称")
                     bottom_text_input = gr.Textbox(label="底部文字", placeholder="输入底部文字") 
                     size_input = gr.Dropdown(choices=["200", "300", "400"], value="300", label="印章尺寸")
-                    key_file = gr.File(label="上传私钥文件（可选）", file_types=[".pem"])
+                    
+                    enable_watermark = gr.Checkbox(label="启用数字水印", value=True)
+                    with gr.Accordion("数字水印设置", open=False) as watermark_acc:
+                        watermark_content = gr.Textbox(label="水印文本内容", placeholder="输入水印文本或上传文件")
+                        watermark_file = gr.File(label="或上传水印文件", file_types=[".txt", ".pdf", ".docx"])
+                        key_file = gr.File(label="私钥文件", file_types=[".pem"])
+                        gr.Markdown("### 密钥管理")
+                        generate_key_btn = gr.Button("生成新密钥对")
+                        key_output = gr.File(label="下载私钥文件", visible=True)
+                    
                     generate_btn = gr.Button("生成印章")
-                    gr.Markdown("### 密钥管理")
-                    generate_key_btn = gr.Button("生成新密钥对")
-                    key_output = gr.File(label="下载私钥文件", visible=True)
                 with gr.Column():
                     output_image = gr.Image(label="生成结果", width=500)
+                    watermark_output = gr.JSON(label="水印数据")
 
             generate_btn.click(
                 fn=generate_seal_interface,
                 inputs=[company_input, bottom_text_input, size_input, key_file],
-                outputs=output_image
+                outputs=[output_image, watermark_output]
             )
             
             def generate_keys():
