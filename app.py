@@ -223,8 +223,15 @@ with gr.Blocks(title="红章生成与验证系统") as demo:
                 ))
                 priv_file.close()
                 
-                # 只返回私钥文件路径
-                return priv_file.name
+                # 生成并返回公钥文件路径
+                pub_file = tempfile.NamedTemporaryFile(suffix=".pem", delete=False)
+                pub_file.write(public_key.public_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PublicFormat.SubjectPublicKeyInfo
+                ))
+                pub_file.close()
+                
+                return [priv_file.name, pub_file.name]
             
             generate_key_btn.click(
                 fn=generate_keys,
