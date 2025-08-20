@@ -65,7 +65,7 @@ class RedSealGenerator:
         # 绘制外圆 - 使用多层绘制技术获得更光滑的边缘
         self._draw_smooth_circle(draw, high_res_center, high_res_outer_radius, 
                                6 * scale_factor, (220, 20, 20, 255))
-        
+
         # 绘制超光滑五角星
         self._draw_smooth_star(draw, high_res_center, high_res_center, 
                              high_res_star_radius, (220, 20, 20, 255))
@@ -159,7 +159,7 @@ class RedSealGenerator:
                 center + radius,
                 center + radius
             ], outline=current_color, width=current_width)
-    
+            
     def _draw_smooth_star(self, draw, cx, cy, radius, color):
         """绘制超光滑五角星 - 使用抗锯齿技术"""
         # 计算五角星的点，使用更高精度
