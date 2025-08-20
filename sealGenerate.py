@@ -186,11 +186,12 @@ class Stamp:
             angle_word_curr = -((len(self.words_mid) - 1) / 2) * angle_word
 
             for word in self.words_mid:
-            self.draw_rotated_text(img, 0,
-                                   (self.R + self.edge + self.H * tan(angle_word_curr * pi / 180), self.R + self.edge),
-                                   self.H,
-                                   word, self.fill, self.font_size_mid, self.font_xratio_mid, self.stroke_width_mid,
-                                   font_flip=True)
+                self.draw_rotated_text(img, 0,
+                                      (self.R + self.edge + self.H * tan(angle_word_curr * pi / 180), self.R + self.edge),
+                                      self.H,
+                                      word, self.fill, self.font_size_mid, self.font_xratio_mid, self.stroke_width_mid,
+                                      font_flip=True)
+                angle_word_curr = angle_word_curr + angle_word
             angle_word_curr = angle_word_curr + angle_word
 
         # 绘制下圈文字
