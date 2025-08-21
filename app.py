@@ -425,7 +425,7 @@ def verify_seal_interface(image, original_text):
         return f"验证过程中发生错误：{str(e)}"
 
 with gr.Blocks(title="红章生成与验证系统") as demo:
-    gr.Markdown("# 🏮 红章管理系统")
+    gr.Markdown("# 🏮 数字签名红章生成工具")
     
     with gr.Tabs():
         with gr.TabItem("生成红章"):
